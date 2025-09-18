@@ -7,6 +7,7 @@ const { site, page } = useData()
 const links = [
   ['/', 'index.md', '介绍'],
   ['/#random', '', '随机'],
+  ['/rss', 'rss.md', 'RSS'],
   ['/sites', 'sites.md', '站点列表'],
   ['/tags', 'tags.md', '类别'],
   ['https://github.com/timqian/chinese-independent-blogs/tree/master?tab=readme-ov-file#%E5%A6%82%E4%BD%95%E6%8F%90%E4%BA%A4',
@@ -16,7 +17,7 @@ const links = [
 
 <template>
   <header>
-    <h1>{{ site.title }}</h1>
+    <div class="title">{{ site.title }}</div>
     <p>{{ site.description }}</p>
     <nav>
       <ul>

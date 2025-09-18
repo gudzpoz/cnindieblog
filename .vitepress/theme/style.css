@@ -1,6 +1,6 @@
 :root {
   --prm: #5E7CE2;
-  --sec: #92B4F4;
+  --sec: #C2E4FF;
   --emph: #0A369D;
   --tint: #F1F6F9;
   scroll-behavior: smooth;
@@ -16,6 +16,11 @@ body {
 
 header, nav {
   text-align: center;
+}
+header .title {
+  margin-top: 2em;
+  font-size: 2.4em;
+  font-weight: bold;
 }
 nav ul {
   display: flex;

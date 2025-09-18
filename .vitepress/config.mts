@@ -8,4 +8,7 @@ export default defineConfig({
   description: '随机 RSS 探索',
   lang: 'zh',
   contentProps: {},
+  head: [
+    ['link', { rel: 'icon', href: '/favicon.png' }],
+  ],
 })

@@ -8,6 +8,7 @@
     "docs:dev": "vitepress dev",
     "docs:build": "vitepress build",
     "docs:preview": "vitepress preview",
+    "rss:fetch": "node fetch.mjs",
     "dev": "vitepress dev",
     "build": "vitepress build",
     "preview": "vitepress preview"
@@ -24,6 +25,7 @@
   },
   "dependencies": {
     "opencc-js": "^1.0.5",
+    "rss-parser": "^3.13.0",
     "vue": "^3.5.21"
   }
 }
