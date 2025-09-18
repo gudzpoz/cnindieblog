@@ -1,0 +1,3 @@
+[submodule "listing"]
+	path = listing
+	url = https://github.com/timqian/chinese-independent-blogs.git
