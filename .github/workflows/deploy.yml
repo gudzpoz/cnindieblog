@@ -23,11 +23,16 @@ jobs:
           node-version: 20
           cache: 'pnpm'
       - name: Install dependencies
-        run: pnpm install
+        run: |
+          sudo apt install brotli
+          pnpm install
       - name: Update sites
         run: 'cd listing && git pull'
       - name: Update RSS
-        run: pnpm rss:fetch
+        run: |
+          pnpm rss:fetch
+          brotli pages/public/feed.json
+          rm pages/public/feed.json
       - name: Build with VitePress
         run: pnpm docs:build
       - uses: cloudflare/wrangler-action@v3

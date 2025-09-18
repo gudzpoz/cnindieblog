@@ -43,17 +43,17 @@ async function fetchAllRss(links) {
       }
     }),
   ))
-  const feeds = Object.fromEntries(results.map(
-    (result, i) => [
+  const feeds = Object.fromEntries(results.map((result, i) => {
+    const error = result.status === 'fulfilled' ? null : `${result.reason}`
+    const value = result.status === 'fulfilled' ? result.value : {}
+    return [
       links[i],
       {
-        history: 0, // bit set of error history
-        value: result.status === 'fulfilled'
-          ? result.value
-          : `${result.reason}`,
-      },
-    ],
-  ))
+        history: result.status === 'fulfilled' ? 0 : 1,
+        error, value,
+      }
+    ]
+  }))
   return {
     updatedAt: Date.now(),
     feeds,
@@ -65,15 +65,28 @@ async function fetchAllRss(links) {
  */
 async function fetchHistory() {
   // TODO
-  return {}
+  return {
+    updatedAt: 0,
+    feeds: {},
+  }
 }
 
 /**
- * @param {ReturnType<fetchHistory>} history
- * @param {ReturnType<fetchAllRss>} update
+ * @param {Awaited<ReturnType<fetchAllRss>>} history
+ * @param {Awaited<ReturnType<fetchAllRss>>} update
  */
 function mergeHistory(history, update) {
-  // TODO
+  Object.entries(update.feeds).forEach(([url, rss]) => {
+    const last = history.feeds[url]
+    const bits = last?.history
+    if (bits) {
+      rss.history |= (bits << 1) & 0xFFFF_FFFF
+    }
+    const value = last?.value
+    if (value &&rss.error !== null) {
+      rss.value = value
+    }
+  })
 }
 
 async function main() {
@@ -83,7 +96,7 @@ async function main() {
   mergeHistory(history, update)
   await writeFile(
     'pages/public/feed.json',
-    JSON.stringify(update, null, 2),
+    JSON.stringify(update),
     'utf-8',
   )
 }
