@@ -1,6 +1,7 @@
 import { parse } from 'csv-parse/sync'
 import { assert } from 'node:console'
 import { readFile } from 'node:fs/promises'
+import { Converter } from 'opencc-js'
 
 interface Entry {
   title: string,
@@ -9,30 +10,55 @@ interface Entry {
   tags: string[],
 }
 
+const TW2SC = Converter({ from: 'tw', to: 'cn' })
+const HK2SC = Converter({ from: 'hk', to: 'cn' })
+const NAME_MAPPING: Record<string, string> = {
+  'Go': 'Golang',
+  '读书': '读书笔记',
+  '个人随笔': '随笔',
+  'JS': 'JavaScript',
+  'ACG': '二次元',
+}
+const CANON_NAMES = Object.fromEntries(Object.entries(NAME_MAPPING).map(
+  ([_, v]) => ([v.toLowerCase(), v]),
+))
+const CANON = Object.fromEntries(Object.entries(NAME_MAPPING).map(
+  ([k, v]) => [k.toLowerCase(), v.toLowerCase()],
+))
+
+function canonicalName(s: string, tag: string) {
+  s = TW2SC(s)
+  s = HK2SC(s)
+  s = CANON_NAMES[tag] ?? s
+  return s
+}
 function canonical(s: string) {
   s = s.toLowerCase()
     .replaceAll(/(?<=[ -~]) (?![ -~])/g, '')
     .replaceAll(/(?<![ -~]) (?=[ -~])/g, '')
     .replaceAll(/(?<![ -~]) (?![ -~])/g, '')
     .replaceAll(/ +/g, '-')
-  let hasAscii = false, hasNonAscii = false
-  for (const c of s) {
-    hasAscii ||= c.codePointAt(0)! < 0x80
-    hasNonAscii ||= c.codePointAt(0)! >= 0x80
-  }
+  s = CANON[s] ?? s
+  s = TW2SC(s)
+  s = HK2SC(s)
   return s
 }
 
 function buildTagIndices(entries: Entry[]) {
-  const indices: Record<string, number[]> = {};
+  const indices: Record<string, [string, string, number[]]> = {};
   entries.forEach(({ tags }, i) => tags.forEach((tag) => {
-    tag = canonical(tag)
-    if (!indices[tag]) {
-      indices[tag] = []
+    const canon = canonical(tag)
+    if (!indices[canon]) {
+      indices[canon] = [canon, canonicalName(tag, canon), []]
     }
-    indices[tag].push(i)
+    const list = indices[canon][2]
+    if (!list.includes(i)) {
+      list.push(i)
+    }
   }))
-  return Object.fromEntries(Object.entries(indices).filter((e) => e[1].length > 1))
+  return Object.values(indices)
+    .filter((e) => e[2].length > 1)
+    .sort((a, b) => b[2].length - a[2].length)
 }
 
 export default {

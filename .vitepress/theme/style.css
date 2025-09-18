@@ -76,6 +76,20 @@ button:hover {
   background-color: var(--prm);
 }
 
+table {
+  margin: auto;
+}
+thead th {
+  text-align: center;
+  padding: 0.5em;
+}
+thead, tr:nth-child(even) {
+  background-color: var(--tint);
+}
+td {
+  padding: 0.1em 2em;
+}
+
 footer {
   font-size: 0.8em;
   text-align: center;
